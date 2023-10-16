@@ -10,14 +10,14 @@
       <TargetName>BoilerBot_Infantry_2022_Leo</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <pCCUsed>5050041::V5.05 (build 41)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F427IIHx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.16.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.17.1</PackID>
+          <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x2002FFFF) IRAM2(0x10000000-0x1000FFFF) IROM(0x8000000-0x81FFFFF)  CLOCK(25000000) FPU2 CPUTYPE("Cortex-M4") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -1956,6 +1956,16 @@
               <FileName>User_Interface.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\HigherLevelApps\HigherLevelApps.c\User_Interface.c</FilePath>
+            </File>
+            <File>
+              <FileName>Swerve_Module.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HigherLevelApps\HigherLevelApps.c\Swerve_Module.c</FilePath>
+            </File>
+            <File>
+              <FileName>Swerve.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HigherLevelApps\HigherLevelApps.c\Swerve.c</FilePath>
             </File>
           </Files>
         </Group>

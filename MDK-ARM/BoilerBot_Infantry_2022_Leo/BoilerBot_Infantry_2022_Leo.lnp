@@ -50,6 +50,8 @@
 "boilerbot_infantry_2022_leo\shooting_control.o"
 "boilerbot_infantry_2022_leo\imu_temp_control.o"
 "boilerbot_infantry_2022_leo\user_interface.o"
+"boilerbot_infantry_2022_leo\swerve_module.o"
+"boilerbot_infantry_2022_leo\swerve.o"
 "boilerbot_infantry_2022_leo\user_defined_math.o"
 "boilerbot_infantry_2022_leo\pid.o"
 "boilerbot_infantry_2022_leo\ramp_calc.o"
