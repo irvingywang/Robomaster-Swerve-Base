@@ -5,8 +5,8 @@
 #include "M3508_Motor.h"
 
 typedef struct {
-	float Module_Speed;
-	float Module_Angle;
+	float Module_Speed; // m/s
+	float Module_Angle; // deg
 } Module_State_t;
 
 typedef struct {

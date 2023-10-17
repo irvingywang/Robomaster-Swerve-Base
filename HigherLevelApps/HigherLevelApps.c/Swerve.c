@@ -36,6 +36,22 @@ Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_A
 	
 	return Desaturated_Module_States;
 }
+	
+
+/* Inverse swerve kinematics*/
+Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Speeds) { 
+	Module_State_Array_t Calculated_Module_States;
+	if (Chassis_Speeds.X_Speed == 0 && Chassis_Speeds.X_Speed == 0 && Chassis_Speeds.X_Speed == 0) {
+		for (int i=0; i<4; i++) {
+			Calculated_Module_States.States[i].Module_Speed = 0; 
+			Calculated_Module_States.States[i].Module_Angle = 0;
+		}
+	} else {//TODO calculate inverse kinematics via matrix (multiply by chassis speed vector)
+		
+	}
+	return Calculated_Module_States;
+}
+
 
 void drive(float speed, float theta) { //no kinematics (drives like a car)	
 	Module_State_Array_t New_States;
@@ -43,7 +59,6 @@ void drive(float speed, float theta) { //no kinematics (drives like a car)
 		New_States.States[i].Module_Speed = speed;
 		New_States.States[i].Module_Angle = theta;
 	}
-	
 	Set_Desired_States(Desaturate_Wheel_Speeds(New_States));
 }
 
