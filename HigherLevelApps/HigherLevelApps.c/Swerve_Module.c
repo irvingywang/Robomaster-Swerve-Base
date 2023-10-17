@@ -1,4 +1,5 @@
 #include "Swerve_Module.h"
+#include "User_Defined_Math.h"
 
 float Measured_Wheel_Speed = 0.0f; //TODO get encoder feedback from motors
 float	Measured_Wheel_Angle = 0.0f;
@@ -14,7 +15,7 @@ Module_State_t Optimize_Module_Angle(Module_State_t Input_State) {
 	Module_State_t Optimized_Module_State;
 	float Wheel_Angle_Delta = Input_State.Module_Angle - Measured_Wheel_Angle;
 	
-	if (Wheel_Angle_Delta > 90.0f) { //TODO Absolute value of Delta
+	if (fabs(Wheel_Angle_Delta) > 90.0f) {
 		Optimized_Module_State.Module_Speed = -1 * Input_State.Module_Speed;
 		Optimized_Module_State.Module_Angle = Input_State.Module_Angle + 180.0f;
 	}
@@ -24,6 +25,7 @@ Module_State_t Optimize_Module_Angle(Module_State_t Input_State) {
 
 /*Command motors to output calulated module state*/
 void Set_Module_Output(Swerve_Module_t *Swerve_Module, Module_State_t Desired_State) {
+	Desired_State.Module_Angle = Calculate_Wrapped_Angle(Desired_State.Module_Angle);
 	Desired_State = Optimize_Module_Angle(Desired_State);
 	
 	Swerve_Module->Azimuth_Motor.Output_Current = 

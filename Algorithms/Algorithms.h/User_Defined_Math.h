@@ -23,5 +23,6 @@
  
 extern float VAL_LIMIT(float Value, float Upper_Limit, float Lower_Limit);
 extern float Find_Gimbal_Min_Angle(float Angle);
+extern float Calculate_Wrapped_Angle(float degrees);
 
 #endif

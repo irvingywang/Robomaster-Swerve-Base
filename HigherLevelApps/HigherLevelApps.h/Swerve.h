@@ -14,6 +14,7 @@ int Azimuth_CAN_ID[4] = {1, 2, 3, 4};
 float Animuth_Encoder_Zero_Offset[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // encoder ticks 
 
 typedef struct {
+	int Current_Mode;
 	Swerve_Module_t Modules[4];
 } Swerve_t;
 
@@ -25,5 +26,5 @@ typedef struct {
 	Module_State_t States[4];
 } Module_State_Array_t;
 
-
+//extern void drive();
 #endif
