@@ -1,0 +1,8 @@
+# build files
+MDK-ARM/*
+
+# exclude keil project file
+!MDK-ARM/*.uvprojx
+
+# exclude assembly file
+!MDK-ARM/*.s
