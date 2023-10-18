@@ -4,7 +4,7 @@
 /* Declare swerve struct */
 Swerve_t Swerve;
 
-/* Initailize physical constants of each module*/
+/* Initialize physical constants of each module*/
 void Init_Modules() {
 	for (int i=0; i<4; i++) {
 		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i]; 
@@ -22,11 +22,11 @@ void Set_Desired_States(Module_State_Array_t Desired_States) {
 Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_Array) {
 	float Highest_Speed;
 	for (int i=0; i<4; i++) {
-		if(Module_State_Array.States[i].Module_Speed > fabs(Highest_Speed)) {
+		if(Module_State_Array.States[i].Module_Speed > fabsf(Highest_Speed)) {
 			Highest_Speed = Module_State_Array.States[i].Module_Speed;
 		}
 	}
-	float Desaturation_Coefficient = Swerve_Max_Speed / Highest_Speed;
+	float Desaturation_Coefficient = SWERVE_MAX_SPEED / Highest_Speed;
 	
 	Module_State_Array_t Desaturated_Module_States;
 	
@@ -41,31 +41,45 @@ Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_A
 /* Inverse swerve kinematics*/
 Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Speeds) { 
 	Module_State_Array_t Calculated_Module_States;
-	if (Chassis_Speeds.X_Speed == 0 && Chassis_Speeds.X_Speed == 0 && Chassis_Speeds.X_Speed == 0) {
+	if (Chassis_Speeds.X_Speed == 0 && Chassis_Speeds.Y_Speed == 0 && Chassis_Speeds.Theta_Speed == 0) {
 		for (int i=0; i<4; i++) {
 			Calculated_Module_States.States[i].Module_Speed = 0; 
 			Calculated_Module_States.States[i].Module_Angle = 0;
 		}
 	} else {//TODO calculate inverse kinematics via matrix (multiply by chassis speed vector)
-		
+
+        float Chassis_Speeds_Vector[3][1] =
+                {Chassis_Speeds.X_Speed, Chassis_Speeds.Y_Speed, Chassis_Speeds.Theta_Speed};
+
         /* sample mat calc start */
-        // init mat array
-        float mat_a[5][5] = {{1, 1, 1, 1, 1},
-                             {1, 1, 1, 1, 1},
-                             {1, 1, 1, 1, 1},
-                             {1, 1, 1, 1, 1},
-                             {1, 1, 1, 1, 1}};
-        float mat_b[5][1] = {{1}, {1}, {1}, {1}, {1}};
-        float mat_mul[5][1];
+        float Module_States_Matrix[3][1];
         // init arm math instance
-        arm_matrix_instance_f32 mat_a_instance, mat_b_instance, mat_mul_instance;
-        arm_mat_init_f32(&mat_a_instance, 5, 5, &mat_a[0][0]);
-        arm_mat_init_f32(&mat_b_instance, 5, 1, &mat_b[0][0]);
-        arm_mat_init_f32(&mat_mul_instance, 5, 1, &mat_mul[0][0]);
+        arm_matrix_instance_f32 Swerve_Inverse_Kinematics_instance, Chassis_Speeds_Vector_instance, Module_States_Matrix_instance;
+        arm_mat_init_f32(&Swerve_Inverse_Kinematics_instance, 8, 3, &Swerve_Inverse_Kinematics[0][0]);
+        arm_mat_init_f32(&Chassis_Speeds_Vector_instance, 3, 1, &Chassis_Speeds_Vector[0][0]);
+        arm_mat_init_f32(&Module_States_Matrix_instance, 3, 1, &Module_States_Matrix[0][0]);
         
         // calc
-        if (arm_mat_mult_f32(&mat_a_instance, &mat_b_instance, &mat_mul_instance) == ARM_MATH_SUCCESS) {
+        if (arm_mat_mult_f32(&Swerve_Inverse_Kinematics_instance, &Chassis_Speeds_Vector_instance, &Module_States_Matrix_instance) == ARM_MATH_SUCCESS) {
+            float m_sin, m_cos;
             /* operation success */
+            for (int i = 0; i < 4; i++) {
+                float x = Module_States_Matrix[i*2][0];
+                float y = Module_States_Matrix[i*2 + 1][0];
+
+                float speed = hypotf(x, y);
+                if (speed > 1e-6f) {
+                    m_sin = y / speed;
+                    m_cos = x / speed;
+                } else {
+                    m_sin = 0.0f;
+                    m_cos = 1.0f;
+                }
+                float angle = atan2f(m_sin, m_cos);
+
+                Calculated_Module_States.States[i].Module_Speed = speed;
+                Calculated_Module_States.States[i].Module_Angle = angle;
+            }
         } else {
             /* operation failed */
         }

@@ -6,14 +6,25 @@
 #include "arm_math.h"
 
 //PHYSICAL CONSTANTS
-#define Swerve_Max_Speed 1.0f // m/s
-#define Swerve_Width 1.0f // m, measured wheel to wheel
-#define Swerve_Height 1.0f // m, measured wheel to wheel
+#define SWERVE_MAX_SPEED 1.0f // m/s
+#define TRACK_WIDTH 1.0f // m, measured wheel to wheel (side to side)
+#define WHEEL_BASE 1.0f // m, measured wheel to wheel (up and down)
 
-//MODULE CONSTANTS 
-bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true}; 
+//MODULE CONSTANTS
+//ORDER MATTERS - front left, front right, back left, back right
+bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true};
 int Azimuth_CAN_ID[4] = {1, 2, 3, 4};
-float Animuth_Encoder_Zero_Offset[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // encoder ticks 
+float Azimuth_Encoder_Zero_Offset[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // encoder ticks
+
+float Swerve_Inverse_Kinematics[8][3] = {
+        { 1, 0, -(WHEEL_BASE/2)}, //front left 1
+        {0, 1, +(-TRACK_WIDTH/2)},
+        {1, 0 ,-(WHEEL_BASE/2)}, //front right 2
+        {0, 1, +(TRACK_WIDTH/2)},
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back left 3
+        {0, 1, +(-TRACK_WIDTH/2)},
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back right 4
+        {0, 1, +(TRACK_WIDTH/2)}};
 
 typedef struct {
 	int Current_Mode;
