@@ -48,6 +48,28 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
 		}
 	} else {//TODO calculate inverse kinematics via matrix (multiply by chassis speed vector)
 		
+        /* sample mat calc start */
+        // init mat array
+        float mat_a[5][5] = {{1, 1, 1, 1, 1},
+                             {1, 1, 1, 1, 1},
+                             {1, 1, 1, 1, 1},
+                             {1, 1, 1, 1, 1},
+                             {1, 1, 1, 1, 1}};
+        float mat_b[5][1] = {{1}, {1}, {1}, {1}, {1}};
+        float mat_mul[5][1];
+        // init arm math instance
+        arm_matrix_instance_f32 mat_a_instance, mat_b_instance, mat_mul_instance;
+        arm_mat_init_f32(&mat_a_instance, 5, 5, &mat_a[0][0]);
+        arm_mat_init_f32(&mat_b_instance, 5, 1, &mat_b[0][0]);
+        arm_mat_init_f32(&mat_mul_instance, 5, 1, &mat_mul[0][0]);
+        
+        // calc
+        if (arm_mat_mult_f32(&mat_a_instance, &mat_b_instance, &mat_mul_instance) == ARM_MATH_SUCCESS) {
+            /* operation success */
+        } else {
+            /* operation failed */
+        }
+        /* sample mat calc end */
 	}
 	return Calculated_Module_States;
 }

@@ -2,6 +2,8 @@
 #define SWERVE_h
 
 #include "Swerve_Module.h"
+#define ARM_MATH_CM4
+#include "arm_math.h"
 
 //PHYSICAL CONSTANTS
 #define Swerve_Max_Speed 1.0f // m/s
