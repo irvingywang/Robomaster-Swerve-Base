@@ -12,6 +12,7 @@ typedef struct {
 typedef struct {
 	bool Azimuth_Encoder_Reversed;
 	int Azimuth_CAN_ID;
+    float Azimuth_Encoder_Zero_Offset;
 	
 	PID_t Azimuth_PID;
 	Motor_Init_t Azimuth_Motor;

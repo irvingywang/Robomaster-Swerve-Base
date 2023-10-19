@@ -7,26 +7,22 @@ Swerve_t Swerve;
 /* Initialize physical constants of each module*/
 void Init_Modules() {
 	for (int i=0; i<4; i++) {
-		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i]; 
-	}
-}
-
-/* Set the desired modules state of each module */
-void Set_Desired_States(Module_State_Array_t Desired_States) {
-	for (int i=0; i<4; i++) {
-		Swerve.Modules[i].Module_State = Desired_States.States[i];
-	}
+		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i];
+        Swerve.Modules[i].Azimuth_CAN_ID = Azimuth_CAN_ID[i];
+        Swerve.Modules[i].Azimuth_Encoder_Zero_Offset = Azimuth_Encoder_Zero_Offset[i];
+    }
 }
 
 /* Scale wheel speeds to max possible speed while preserving ratio between modules.*/
 Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_Array) {
-	float Highest_Speed;
+	float Highest_Speed = fabsf(Module_State_Array.States[0].Module_Speed);
 	for (int i=0; i<4; i++) {
-		if(Module_State_Array.States[i].Module_Speed > fabsf(Highest_Speed)) {
+		if(fabsf(Module_State_Array.States[i].Module_Speed) > fabsf(Highest_Speed)) {
 			Highest_Speed = Module_State_Array.States[i].Module_Speed;
 		}
+        float num = fmaxf(1,2);
 	}
-	float Desaturation_Coefficient = SWERVE_MAX_SPEED / Highest_Speed;
+	float Desaturation_Coefficient = fabsf(SWERVE_MAX_SPEED / Highest_Speed);
 	
 	Module_State_Array_t Desaturated_Module_States;
 	
@@ -36,7 +32,6 @@ Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_A
 	
 	return Desaturated_Module_States;
 }
-	
 
 /* Inverse swerve kinematics*/
 Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Speeds) { 
@@ -88,7 +83,47 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
 	return Calculated_Module_States;
 }
 
+/* Set the desired modules state of each module */
+void Set_Desired_States(Module_State_Array_t Desired_States) {
+    Desired_States = Desaturate_Wheel_Speeds(Desired_States);
+    for (int i=0; i<4; i++) {
+        Swerve.Modules[i].Module_State = Desired_States.States[i];
+    }
+}
+
+/* Takes driver input (-1 to 1) and sets respective wheel speeds using inverse kinematics*/
+void drive(float x, float y, float theta) {
+    x *= SWERVE_MAX_SPEED; //convert to m/s
+    y *= SWERVE_MAX_SPEED;
+    theta *= SWERVE_MAX_ANGLUAR_SPEED; //convert to deg/s
+	Chassis_Speeds_t Desired_Chassis_Speeds = {.X_Speed = x, .Y_Speed = y, .Theta_Speed = theta};
+
+    Set_Desired_States(Chassis_Speeds_To_Module_States(Desired_Chassis_Speeds));
+}
+
+/* Commands modules to stop moving and reset angle to 0. Should be called on robot enable */
+void Reset_Modules() {
+    Module_State_t Reset_State = {.Module_Speed = 0, .Module_Angle = 0};
+    Module_State_Array_t Desired_States = {Reset_State, Reset_State, Reset_State, Reset_State};
+
+    Set_Desired_States(Desired_States);
+}
+
+
+void Swerve_Processing(Swerve_t *Swerve) { // TODO
+    switch (Swerve->Current_Mode) {
+        case (Follow_Gimbal): {
+
+        }
+    }
+
+    drive(DR16_Export_Data.Remote_Control.Joystick_Left_Vy,
+            DR16_Export_Data.Remote_Control.Joystick_Left_Vx,
+            DR16_Export_Data.Remote_Control.Joystick_Right_Vx);
+}
+
 /* Takes driver input and sets respective wheel speeds without kinematics (drives like a car)*/
+/*
 void drive() {
 	Module_State_Array_t New_States;
 	for (int i=0; i<4; i++) {
@@ -96,22 +131,5 @@ void drive() {
 		New_States.States[i].Module_Angle = DR16_Export_Data.Remote_Control.Joystick_Right_Vx;;
 	}
 	Set_Desired_States(Desaturate_Wheel_Speeds(New_States));
-}
-
-void Swerve_Processing(Swerve_t *Swerve) { // TODO
-	switch (Swerve->Current_Mode) {
-		case (Follow_Gimbal): {
-			
-		}
-	}
-	
-	drive();
-}
-
-/* TODO drive with kinematics
-void drive(float x, float y, float theta) {
-	
-}
-*/
-
+}*/
 
