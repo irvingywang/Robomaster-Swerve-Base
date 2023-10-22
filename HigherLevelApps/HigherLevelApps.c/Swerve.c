@@ -4,13 +4,36 @@
 /* Declare swerve struct */
 Swerve_t Swerve;
 
+bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true};
+int Azimuth_CAN_ID[4] = {0x205, 0x206, 0x207, 0x208};
+float Azimuth_Encoder_Zero_Offset[4] = {5470.0f, 1256.0f, 5465.0f, 7444.0f}; // encoder ticks
+
+float Swerve_Inverse_Kinematics[8][3] = {
+        { 1, 0, -(WHEEL_BASE/2)}, //front left 1
+        {0, 1, +(-TRACK_WIDTH/2)},
+        {1, 0 ,-(WHEEL_BASE/2)}, //front right 2
+        {0, 1, +(TRACK_WIDTH/2)},
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back left 3
+        {0, 1, +(-TRACK_WIDTH/2)},
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back right 4
+        {0, 1, +(TRACK_WIDTH/2)}};
+
+
+void Init_Modules(void);
+void Swerve_Processing(Swerve_t *Swerve);
+
 /* Initialize physical constants of each module*/
 void Init_Modules() {
 	for (int i=0; i<4; i++) {
 		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i];
         Swerve.Modules[i].Azimuth_CAN_ID = Azimuth_CAN_ID[i];
         Swerve.Modules[i].Azimuth_Encoder_Zero_Offset = Azimuth_Encoder_Zero_Offset[i];
+        Swerve.Modules[i].Azimuth_PID.Kp = 10000.0f;
+        Swerve.Modules[i].Azimuth_PID.Ki = 0.0f;
+        Swerve.Modules[i].Azimuth_PID.Kd = 0.0f;
+        Swerve.Modules[i].Azimuth_PID.Output_Max = 18000.0f;
     }
+    
 }
 
 /* Scale wheel speeds to max possible speed while preserving ratio between modules.*/
@@ -23,12 +46,13 @@ Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_A
         float num = fmaxf(1,2);
 	}
 	float Desaturation_Coefficient = fabsf(SWERVE_MAX_SPEED / Highest_Speed);
-	
+	//1.4/(1/1.4)
 	Module_State_Array_t Desaturated_Module_States;
 	
 	for (int i=0; i<4; i++) {
-		Desaturated_Module_States.States[i].Module_Speed = Module_State_Array.States[i].Module_Speed / Desaturation_Coefficient;
-	}
+		Desaturated_Module_States.States[i].Module_Speed = Module_State_Array.States[i].Module_Speed * Desaturation_Coefficient;
+        Desaturated_Module_States.States[i].Module_Angle = Module_State_Array.States[i].Module_Angle;
+    }
 	
 	return Desaturated_Module_States;
 }
@@ -47,12 +71,12 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
                 {Chassis_Speeds.X_Speed, Chassis_Speeds.Y_Speed, Chassis_Speeds.Theta_Speed};
 
         /* sample mat calc start */
-        float Module_States_Matrix[3][1];
+        float Module_States_Matrix[8][1];
         // init arm math instance
         arm_matrix_instance_f32 Swerve_Inverse_Kinematics_instance, Chassis_Speeds_Vector_instance, Module_States_Matrix_instance;
         arm_mat_init_f32(&Swerve_Inverse_Kinematics_instance, 8, 3, &Swerve_Inverse_Kinematics[0][0]);
         arm_mat_init_f32(&Chassis_Speeds_Vector_instance, 3, 1, &Chassis_Speeds_Vector[0][0]);
-        arm_mat_init_f32(&Module_States_Matrix_instance, 3, 1, &Module_States_Matrix[0][0]);
+        arm_mat_init_f32(&Module_States_Matrix_instance, 8, 1, &Module_States_Matrix[0][0]);
         
         // calc
         if (arm_mat_mult_f32(&Swerve_Inverse_Kinematics_instance, &Chassis_Speeds_Vector_instance, &Module_States_Matrix_instance) == ARM_MATH_SUCCESS) {
@@ -66,14 +90,19 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
                 if (speed > 1e-6f) {
                     m_sin = y / speed;
                     m_cos = x / speed;
-                } else {
+                    float angle = atan2f(m_sin, m_cos);
+
+                    // Calculated_Module_States.States[i].Module_Speed = speed;
+                    Calculated_Module_States.States[i].Module_Angle = angle;
+                } 
+                else {
                     m_sin = 0.0f;
                     m_cos = 1.0f;
                 }
-                float angle = atan2f(m_sin, m_cos);
+//                float angle = atan2f(m_sin, m_cos);
 
                 Calculated_Module_States.States[i].Module_Speed = speed;
-                Calculated_Module_States.States[i].Module_Angle = angle;
+//                Calculated_Module_States.States[i].Module_Angle = angle;
             }
         } else {
             /* operation failed */
@@ -117,9 +146,14 @@ void Swerve_Processing(Swerve_t *Swerve) { // TODO
         }
     }
 
-    drive(DR16_Export_Data.Remote_Control.Joystick_Left_Vy,
-            DR16_Export_Data.Remote_Control.Joystick_Left_Vx,
-            DR16_Export_Data.Remote_Control.Joystick_Right_Vx);
+    drive(DR16_Export_Data.Remote_Control.Joystick_Left_Vy / 660.0f,
+            DR16_Export_Data.Remote_Control.Joystick_Left_Vx / 660.0f,
+            DR16_Export_Data.Remote_Control.Joystick_Right_Vx / 660.0f);
+    
+    for (int i = 0; i < 4; i++)
+    {
+        Set_Module_Output(&(Swerve->Modules[i]), Swerve->Modules[i].Module_State);
+    }
 }
 
 /* Takes driver input and sets respective wheel speeds without kinematics (drives like a car)*/

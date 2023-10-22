@@ -3,6 +3,7 @@
 
 #include "PID.h"
 #include "M3508_Motor.h"
+#include "GM6020_Motor.h"
 
 typedef struct {
 	float Module_Speed; // m/s
@@ -24,7 +25,6 @@ typedef struct {
 } Swerve_Module_t;
 
 extern void Init_Swerve_Module(Swerve_Module_t *Swerve_Module, bool Azimuth_Encoder_Reversed, int Azimuth_CAN_ID);
-extern void Set_Module_Angle(Swerve_Module_t *Swerve_Module, float angle);
-extern void Set_Module_Power(Swerve_Module_t *Swerve_Module, float power);
+extern void Set_Module_Output(Swerve_Module_t *Swerve_Module, Module_State_t Desired_State);
 
 #endif

@@ -14,6 +14,8 @@
 Motor_Init_t GM6020_Yaw;
 Motor_Init_t GM6020_Pitch;
 
+void GM6020_Get_Data(Motor_Init_t *motor_init, CAN_Export_Data_t RxMessage);
+void GM6020_Send_Current_Group1(CAN_HandleTypeDef *hcanx, uint16_t motor_1, uint16_t motor_2, uint16_t motor_3, uint16_t motor_4);
 void GM6020_Yaw_Get_Data(CAN_Export_Data_t RxMessage);
 void GM6020_Pitch_Get_Data(CAN_Export_Data_t RxMessage);
 void GM6020_Gimbal_Send_Data(int16_t Pitch_Output, int16_t Yaw_Output);
@@ -22,6 +24,27 @@ void Check_GM6020_Pitch(void);
 
 GM6020_Func_t GM6020_Func = GM6020_Func_GroundInit;
 #undef GM6020_Func_GroundInit
+
+void GM6020_Get_Data(Motor_Init_t *motor_init, CAN_Export_Data_t RxMessage)
+{
+	motor_init->Prev_Angle = motor_init->Actual_Angle;
+	motor_init->Actual_Angle = (int16_t)(RxMessage.CANx_Export_RxMessage[0] << 8 | RxMessage.CANx_Export_RxMessage[1]);
+	motor_init->Actual_Speed = (int16_t)(RxMessage.CANx_Export_RxMessage[2] << 8 | RxMessage.CANx_Export_RxMessage[3]);
+	motor_init->Actual_Current = (int16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
+	motor_init->Temperature = RxMessage.CANx_Export_RxMessage[6];
+	if ((motor_init->Actual_Angle - motor_init->Prev_Angle) < -6500)
+		motor_init->Turn_Count++;
+	else if ((motor_init->Actual_Angle - motor_init->Prev_Angle) > 6500)
+		motor_init->Turn_Count--;
+	motor_init->Total_Angle = motor_init->Actual_Angle + (GM6020_MECH_ANGLE_MAX * motor_init->Turn_Count);
+	motor_init->Info_Update_Frame++;
+}
+
+/* CAN ID 1-4 */
+void GM6020_Send_Current_Group1(CAN_HandleTypeDef *hcanx, uint16_t motor_1, uint16_t motor_2, uint16_t motor_3, uint16_t motor_4)
+{
+	CAN_Func.CAN_0x1FF_Send_Data(hcanx, motor_1, motor_2, motor_3, motor_4);
+}
 
 //Get yaw motor data from CAN
 void GM6020_Yaw_Get_Data(CAN_Export_Data_t RxMessage)

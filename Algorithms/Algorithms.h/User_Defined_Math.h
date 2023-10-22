@@ -20,6 +20,8 @@
 
 #define VAL_MIN(a, b) ((a) < (b) ? (b) : (a))
 #define VAL_MAX(a, b) ((a) > (b) ? (b) : (a))
+
+//#define PI 3.1415927f
  
 extern float VAL_LIMIT(float Value, float Upper_Limit, float Lower_Limit);
 extern float Find_Gimbal_Min_Angle(float Angle);

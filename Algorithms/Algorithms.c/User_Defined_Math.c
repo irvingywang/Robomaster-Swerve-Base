@@ -35,7 +35,7 @@ float Find_Gimbal_Min_Angle(float Angle)
 	return Angle;
 }
 
-/* Wrap the input of a circular system*/
-float Calculate_Wrapped_Angle(float degrees) {
-	return fmod(degrees, 360.0f);
+/* Wrap the input of a circular system in radian */
+float Calculate_Wrapped_Angle(float radians) {
+	return fmod(radians, 2 * 3.1415927f);
 }
