@@ -37,5 +37,14 @@ float Find_Gimbal_Min_Angle(float Angle)
 
 /* Wrap the input of a circular system in radian */
 float Calculate_Wrapped_Angle(float radians) {
-	return fmod(radians, 2 * 3.1415927f);
+	return fmodf(radians, 2*PI);
+}
+
+/* Get the difference of the current angle and the target angle in a circular system */
+float Calculate_Wrapped_Error(float Current_Radians, float Target_Radians) {
+    float error = Target_Radians - Current_Radians;
+    error = (fmodf(error, PI));
+    error = (error >= PI/2) ? (error - PI) : error;
+    error = (error <= -PI/2) ? (error + PI) : error;
+    return error;
 }

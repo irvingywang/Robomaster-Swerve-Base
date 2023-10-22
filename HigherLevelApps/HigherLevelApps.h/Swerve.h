@@ -10,22 +10,15 @@
 #define SWERVE_MAX_ANGLUAR_SPEED 90.0f // deg/s
 #define TRACK_WIDTH 0.23f // m, measured wheel to wheel (side to side)
 #define WHEEL_BASE 0.23f // m, measured wheel to wheel (up and down)
+#define Wheel_Diameter 0.25f
+#define Azimuth_Gear_Ratio 1.0f
+#define Drive_Gear_Ratio 16.8f
 
-//MODULE CONSTANTS
-//ORDER MATTERS - front left, front right, back left, back right
-//bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true};
-//int Azimuth_CAN_ID[4] = {1, 2, 3, 4};
-//float Azimuth_Encoder_Zero_Offset[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // encoder ticks
-
-//float Swerve_Inverse_Kinematics[8][3] = {
-//        { 1, 0, -(WHEEL_BASE/2)}, //front left 1
-//        {0, 1, +(-TRACK_WIDTH/2)},
-//        {1, 0 ,-(WHEEL_BASE/2)}, //front right 2
-//        {0, 1, +(TRACK_WIDTH/2)},
-//        {1, 0 ,-(-WHEEL_BASE/2)}, //back left 3
-//        {0, 1, +(-TRACK_WIDTH/2)},
-//        {1, 0 ,-(-WHEEL_BASE/2)}, //back right 4
-//        {0, 1, +(TRACK_WIDTH/2)}};
+//PID Constants
+#define Azimuth_kP 10000.0f
+#define Azimuth_kI 0.0f
+#define Azimuth_kD 0.0f
+#define Azimuth_Output_Max 18000.0f
 
 typedef struct {
 	int Current_Mode;
@@ -33,7 +26,7 @@ typedef struct {
 } Swerve_t;
 
 typedef struct {
-	float X_Speed, Y_Speed, Theta_Speed;
+	float X_Speed, Y_Speed, Omega;
 } Chassis_Speeds_t;
 
 typedef struct {
@@ -45,5 +38,4 @@ extern Swerve_t Swerve;
 extern void Init_Modules(void);
 extern void Swerve_Processing(Swerve_t *Swerve);
 
-//extern void drive();
 #endif
