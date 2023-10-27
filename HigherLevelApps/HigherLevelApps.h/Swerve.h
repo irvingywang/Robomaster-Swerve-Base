@@ -14,15 +14,17 @@
 #define Azimuth_Gear_Ratio 1.0f
 #define Drive_Gear_Ratio 16.8f
 
+#define NUMBER_OF_MODULES 4
+
 //PID Constants
-#define Azimuth_kP 10000.0f
+#define Azimuth_kP 10000.0f //TODO proper units
 #define Azimuth_kI 0.0f
 #define Azimuth_kD 0.0f
 #define Azimuth_Output_Max 18000.0f
 
 typedef struct {
 	int Current_Mode;
-	Swerve_Module_t Modules[4];
+	Swerve_Module_t Modules[NUMBER_OF_MODULES];
 } Swerve_t;
 
 typedef struct {
@@ -30,7 +32,7 @@ typedef struct {
 } Chassis_Speeds_t;
 
 typedef struct {
-	Module_State_t States[4];
+	Module_State_t States[NUMBER_OF_MODULES];
 } Module_State_Array_t;
 
 extern Swerve_t Swerve;

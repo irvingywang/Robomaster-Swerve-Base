@@ -4,7 +4,7 @@
 void Set_Module_Output(Swerve_Module_t *Swerve_Module, Module_State_t Desired_State);
 
 /* Initialize physical swerve constants */
-void Init_Swerve_Module(Swerve_Module_t *Swerve_Module, bool Azimuth_Encoder_Reversed, int Azimuth_CAN_ID) { //TODO add relavent constants
+void Init_Swerve_Module(Swerve_Module_t *Swerve_Module, bool Azimuth_Encoder_Reversed, int Azimuth_CAN_ID) { //TODO add relevant constants
 	Swerve_Module->Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed;
 	Swerve_Module->Azimuth_CAN_ID = Azimuth_CAN_ID;
 }
