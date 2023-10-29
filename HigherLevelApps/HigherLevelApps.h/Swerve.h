@@ -6,7 +6,7 @@
 #include "arm_math.h"
 
 //PHYSICAL CONSTANTS
-#define SWERVE_MAX_SPEED 1.0f // m/s
+//#define SWERVE_MAX_SPEED 2.0f // m/s
 #define SWERVE_MAX_ANGLUAR_SPEED 90.0f // deg/s
 #define TRACK_WIDTH 0.23f // m, measured wheel to wheel (side to side)
 #define WHEEL_BASE 0.23f // m, measured wheel to wheel (up and down)

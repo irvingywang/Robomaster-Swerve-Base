@@ -294,6 +294,18 @@ void CAN1_Rec(void const * argument)
       else if (ID == Swerve.Modules[3].Azimuth_CAN_ID) {
         GM6020_Func.GM6020_Get_Data(&(Swerve.Modules[3].Azimuth_Motor), CAN_Export_Data);
       }
+      else if(ID == Swerve.Modules[0].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[0].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[1].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[1].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[2].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[2].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[3].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[3].Drive_Motor), CAN_Export_Data);
+      }
 //		if(ID == SUPERCAP_ID)
 //			Super_Capacitor_Func.Super_Capacitor_Get_Data(CAN_Export_Data);
 //		else if(ID >= M3508_CHASSIS_START_ID && ID <= M3508_CHASSIS_END_ID)

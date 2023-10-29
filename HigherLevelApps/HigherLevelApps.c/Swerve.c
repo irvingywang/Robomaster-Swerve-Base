@@ -3,17 +3,12 @@
 
 /* Declare swerve struct */
 Swerve_t Swerve;
-
-//MODULE CONSTANTS
-/* ORDER MATTERS
- * 0 = front left,
- * 1 = front right,
- * 2 = back left,
- * 3 = back right
- * */
-bool Azimuth_Encoder_Reversed_Array[NUMBER_OF_MODULES] = {true, true, true, true};
-int Azimuth_CAN_ID[NUMBER_OF_MODULES] = {0x205, 0x206, 0x207, 0x208};
-float Azimuth_Encoder_Zero_Offset[NUMBER_OF_MODULES] = {5470.0f, 1256.0f, 5465.0f, 7444.0f}; // encoder ticks
+float last_swerve_angle[4] = {.0f, .0f, .0f, .0f};
+bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true};
+int Azimuth_CAN_ID[4] = {0x205, 0x206, 0x207, 0x208};
+uint16_t Drive_CAN_ID[4] = {0x202, 0x204, 0x203, 0x201};
+//float Azimuth_Encoder_Zero_Offset[4] = {5470.0f, 5483.0f, 6267.0f, 7444.0f}; // encoder ticks
+float Azimuth_Encoder_Zero_Offset[4] = {5470.0f, 1390.0f, 6267.0f, 3410.0f}; // encoder ticks
 
 // Inverse kinematics matrix for a 4 module swerve
 float Swerve_Inverse_Kinematics[8][3] = {
@@ -35,11 +30,23 @@ void Init_Modules() {
 		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i];
         Swerve.Modules[i].Azimuth_CAN_ID = Azimuth_CAN_ID[i];
         Swerve.Modules[i].Azimuth_Encoder_Zero_Offset = Azimuth_Encoder_Zero_Offset[i];
-        Swerve.Modules[i].Azimuth_PID.Kp = Azimuth_kP;
-        Swerve.Modules[i].Azimuth_PID.Ki = Azimuth_kI;
-        Swerve.Modules[i].Azimuth_PID.Kd = Azimuth_kD;
-        Swerve.Modules[i].Azimuth_PID.Output_Max = Azimuth_Output_Max;
+				Swerve.Modules[i].Azimuth_Motor.Angle_Offset = Azimuth_Encoder_Zero_Offset[i];
+				Swerve.Modules[i].Azimuth_PID.Kp = 10000.0f;
+        Swerve.Modules[i].Azimuth_PID.Ki = 0.0f;
+        Swerve.Modules[i].Azimuth_PID.Kd = 0.0f;
+        Swerve.Modules[i].Azimuth_PID.Output_Max = 18000.0f;
+				
+				Swerve.Modules[i].Drive_PID.Kp = 2000.0f;
+        Swerve.Modules[i].Drive_PID.Ki = 0.0f;
+        Swerve.Modules[i].Drive_PID.Kd = 0.0f;
+				Swerve.Modules[i].Drive_PID.I_Out_Max = 0.0f;
+        Swerve.Modules[i].Drive_PID.Output_Max = 18000.0f;
+				Swerve.Modules[i].Drive_Motor.Last_Total_Angle = 0;
+        Swerve.Modules[i].Drive_CAN_ID = Drive_CAN_ID[i];
+		PID_Func.Clear_PID_Data(&Swerve.Modules[i].Drive_PID);
+		PID_Func.Clear_PID_Data(&Swerve.Modules[i].Azimuth_PID);
     }
+	
 }
 
 /* Scale wheel speeds to max possible speed while preserving ratio between modules.*/
@@ -50,15 +57,19 @@ Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_A
 			Highest_Speed = Module_State_Array.States[i].Module_Speed;
 		}
 	}
-	float Desaturation_Coefficient = fabsf(SWERVE_MAX_SPEED / Highest_Speed);
-
-	Module_State_Array_t Desaturated_Module_States;
-	for (int i=0; i<NUMBER_OF_MODULES; i++) {
-		Desaturated_Module_States.States[i].Module_Speed = Module_State_Array.States[i].Module_Speed * Desaturation_Coefficient;
-        Desaturated_Module_States.States[i].Module_Angle = Module_State_Array.States[i].Module_Angle;
-    }
+	if (fabs(Highest_Speed) > 0.01f) {
+		float Desaturation_Coefficient = fabs(SWERVE_MAX_SPEED / Highest_Speed);
+		//1.4/(1/1.4)
+		Module_State_Array_t Desaturated_Module_States;
 	
-	return Desaturated_Module_States;
+		for (int i=0; i<4; i++) {
+			Desaturated_Module_States.States[i].Module_Speed = Module_State_Array.States[i].Module_Speed * Desaturation_Coefficient;
+					Desaturated_Module_States.States[i].Module_Angle = Module_State_Array.States[i].Module_Angle;
+			}
+			
+		return Desaturated_Module_States;
+	}
+	return Module_State_Array;
 }
 
 /* Convert chassis speeds to module states using inverse kinematics */
@@ -67,7 +78,7 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
 	if (Chassis_Speeds.X_Speed==0 && Chassis_Speeds.Y_Speed==0 && Chassis_Speeds.Omega==0) {
 		for (int i=0; i<NUMBER_OF_MODULES; i++) {
 			Calculated_Module_States.States[i].Module_Speed = 0; 
-			Calculated_Module_States.States[i].Module_Angle = 0;
+			Calculated_Module_States.States[i].Module_Angle = last_swerve_angle[i];
 		}
 	} else {
         float Chassis_Speeds_Vector[3][1] =
@@ -96,12 +107,17 @@ Module_State_Array_t Chassis_Speeds_To_Module_States(Chassis_Speeds_t Chassis_Sp
                     float angle = atan2f(x, y);
 
                     Calculated_Module_States.States[i].Module_Angle = angle;
+									last_swerve_angle[i] = angle;
                 } else {
                     x = 0.0f;
                     y = 1.0f;
                 }
-
-                Calculated_Module_States.States[i].Module_Speed = speed;
+//                float angle = atan2f(m_sin, m_cos);
+		
+								Calculated_Module_States.States[i].Module_Speed = speed;
+								Calculated_Module_States.States[i].Module_Angle = last_swerve_angle[i];
+								
+//                Calculated_Module_States.States[i].Module_Angle = angle;
             }
         } else {
             /* operation failed */
@@ -123,7 +139,7 @@ void Set_Desired_States(Module_State_Array_t Desired_States) {
 void drive(Swerve_t *Swerve, float x, float y, float omega) {
     x *= SWERVE_MAX_SPEED; //convert to m/s
     y *= SWERVE_MAX_SPEED;
-    omega *= SWERVE_MAX_ANGLUAR_SPEED; //convert to deg/s
+    //theta *= SWERVE_MAX_ANGLUAR_SPEED; //convert to rad/s
 	Chassis_Speeds_t Desired_Chassis_Speeds = {.X_Speed = x, .Y_Speed = y, .Omega = omega};
 
     Set_Desired_States(Chassis_Speeds_To_Module_States(Desired_Chassis_Speeds));
@@ -142,10 +158,16 @@ void Reset_Modules() {
     Set_Desired_States(Desired_States);
 }
 
-/* For use in state machine */
-void Swerve_Processing(Swerve_t *Swerve) {
+
+void Swerve_Processing(Swerve_t *Swerve) { // TODO
+    switch (Swerve->Current_Mode) {
+        case (Follow_Gimbal): {
+
+        }
+    }
+
     drive(Swerve,
-          DR16_Export_Data.Remote_Control.Joystick_Left_Vy / 660.0f,
-          DR16_Export_Data.Remote_Control.Joystick_Left_Vx / 660.0f,
-          DR16_Export_Data.Remote_Control.Joystick_Right_Vx / 660.0f);
+		DR16_Export_Data.Remote_Control.Joystick_Left_Vx / 660.0f,
+            DR16_Export_Data.Remote_Control.Joystick_Left_Vy / 660.0f,
+            -DR16_Export_Data.Remote_Control.Joystick_Right_Vx / 660.0f);
 }

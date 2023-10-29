@@ -27,6 +27,11 @@ typedef struct
 	 int16_t Turn_Count;
 	 int16_t Output_Current;
 	 
+	float Angle_Rad;
+	float Last_Total_Angle;
+	float Velocity_Rad;
+	int16_t Angle_Offset;
+	
 	 uint16_t Info_Update_Frame;
 	 uint8_t Offline_Flag;
 }Motor_Init_t;

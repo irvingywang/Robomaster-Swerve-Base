@@ -32,11 +32,14 @@ void GM6020_Get_Data(Motor_Init_t *motor_init, CAN_Export_Data_t RxMessage)
 	motor_init->Actual_Speed = (int16_t)(RxMessage.CANx_Export_RxMessage[2] << 8 | RxMessage.CANx_Export_RxMessage[3]);
 	motor_init->Actual_Current = (int16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
 	motor_init->Temperature = RxMessage.CANx_Export_RxMessage[6];
+	
 	if ((motor_init->Actual_Angle - motor_init->Prev_Angle) < -6500)
 		motor_init->Turn_Count++;
 	else if ((motor_init->Actual_Angle - motor_init->Prev_Angle) > 6500)
 		motor_init->Turn_Count--;
+	
 	motor_init->Total_Angle = motor_init->Actual_Angle + (GM6020_MECH_ANGLE_MAX * motor_init->Turn_Count);
+	motor_init->Angle_Rad = -(motor_init->Total_Angle - motor_init->Angle_Offset)/GM6020_MECH_ANGLE_MAX * 2 * 3.1415927f + 3.1415927f/2;
 	motor_init->Info_Update_Frame++;
 }
 

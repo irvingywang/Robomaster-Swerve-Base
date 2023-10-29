@@ -51,14 +51,20 @@ void Robot_Control_Send(void)
     if (DR16_Export_Data.Remote_Control.Right_Switch == SWITCH_DOWN)
     {
         GM6020_Func.GM6020_Send_Current_Group1(&hcan1, 0, 0, 0, 0);
+				M3508_Func.M3508_Send_Current_Group1(&hcan1, 0, 0, 0, 0);
     }
     else
     {
-    GM6020_Func.GM6020_Send_Current_Group1(&hcan1, Swerve.Modules[0].Azimuth_Motor.Output_Current, 0* Swerve.Modules[1].Azimuth_Motor.Output_Current,
-                                            0 * Swerve.Modules[2].Azimuth_Motor.Output_Current, Swerve.Modules[3].Azimuth_Motor.Output_Current);
-    }
+    GM6020_Func.GM6020_Send_Current_Group1(&hcan1, Swerve.Modules[0].Azimuth_Motor.Output_Current, Swerve.Modules[1].Azimuth_Motor.Output_Current,
+                                            Swerve.Modules[2].Azimuth_Motor.Output_Current, Swerve.Modules[3].Azimuth_Motor.Output_Current);
     
-//	M3508_Func.M3508_Chassis_Send_Data(M3508_Chassis[0].Output_Current,M3508_Chassis[1].Output_Current,
+			
+			
+		M3508_Func.M3508_Send_Current_Group1(&hcan1, Swerve.Modules[1].Drive_Motor.Output_Current, Swerve.Modules[3].Drive_Motor.Output_Current,
+                                            Swerve.Modules[2].Drive_Motor.Output_Current, Swerve.Modules[0].Drive_Motor.Output_Current);
+
+		}
+    //	M3508_Func.M3508_Chassis_Send_Data(M3508_Chassis[0].Output_Current,M3508_Chassis[1].Output_Current,
 //																			M3508_Chassis[2].Output_Current,M3508_Chassis[3].Output_Current);
 //	M3508_Func.M3508_Fric_Wheel_Send_Data(M3508_Fric_Wheel[0].Output_Current,M3508_Fric_Wheel[1].Output_Current);
 //	GM6020_Func.GM6020_Gimbal_Send_Data(GM6020_Pitch.Output_Current,GM6020_Yaw.Output_Current);
