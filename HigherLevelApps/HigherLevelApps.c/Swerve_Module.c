@@ -55,11 +55,11 @@ void Set_Module_Output(Swerve_Module_t *Swerve_Module, Module_State_t Desired_St
 
     //Error_t azimuth_error = get_azimuth_error(Desired_State.Module_Angle, Swerve_Module->Azimuth_Motor.Angle_Rad);
 	
-		Swerve_Module->Azimuth_Motor.Output_Current = 
-		-PID_Func.Positional_PID(&Swerve_Module->Azimuth_PID, Desired_State.Module_Angle, Swerve_Module->Azimuth_Motor.Angle_Rad);
+    Swerve_Module->Azimuth_Motor.Output_Current =
+		-PID_Func.Circular_PID(&Swerve_Module->Azimuth_PID, Desired_State.Module_Angle, Swerve_Module->Azimuth_Motor.Angle_Rad);
 		
 	float current_drive_speed = Swerve_Module->Drive_Motor.Actual_Speed / 16.8f * 2 * PI / 60.0f * 0.115f / 2.0f;
-	if (fabs(Desired_State.Module_Speed)> 0.01f){
+	if (fabs(Desired_State.Module_Speed) > 0.01f){
 	Swerve_Module->Drive_Motor.Output_Current = //(Desired_State.Module_Speed / SWERVE_MAX_SPEED ) * 1000.0f;
 		PID_Func.Positional_PID(&Swerve_Module->Drive_PID, Desired_State.Module_Speed, current_drive_speed);
 	}

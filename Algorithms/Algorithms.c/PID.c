@@ -14,6 +14,7 @@
 float Positional_PID(PID_t *PID, float Target_Value, float Measured_Value);
 float Positional_PID_Min_Error(PID_t *PID, float Target_Value, float Measured_Value, float Min_Error);
 float Incremental_PID(PID_t *PID, float Target_Value, float Measured_Value);
+float Circular_PID(PID_t *PID, float Target_Value, float Measured_Value);
 void Clear_PID_Data(PID_t *PID);
 
 //Initializing all the used PID parameters in the header file
@@ -137,6 +138,24 @@ float Incremental_PID(PID_t *PID, float Target_Value, float Measured_Value)
 	PID->Output = VAL_LIMIT(PID->Output,PID->Output_Max,-PID->I_Out_Max);
 	
 	return PID->Output;
+}
+
+float Circular_PID(PID_t *PID, float Target_Value, float Measured_Value) {
+    float Max_Input = 2*PI;
+    float Min_Input = 0;
+    float Error_Bound = (Max_Input - Min_Input) / 2.0f;
+
+    PID->Target_Value = Target_Value;
+    PID->Measured_Value = Measured_Value;
+    PID->Prev_Error = PID->Error;
+    PID->Error = Calculate_Wrapped_Input(PID->Target_Value - PID->Measured_Value, -Error_Bound, Error_Bound);
+
+    PID->P_Out = PID->Kp * PID->Error;
+    PID->I_Out = 0; //No I
+    PID->D_Out = PID->Kd * (PID->Error - PID->Prev_Error);
+    PID->Output = (PID->P_Out + PID->I_Out + PID->D_Out);
+
+    return PID->Output;
 }
 
 void Clear_PID_Data(PID_t *PID)

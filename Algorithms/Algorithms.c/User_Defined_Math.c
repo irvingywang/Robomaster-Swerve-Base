@@ -48,3 +48,17 @@ float Calculate_Wrapped_Error(float Current_Radians, float Target_Radians) {
     error = (error <= -PI/2) ? (error + PI) : error;
     return error;
 }
+
+float Calculate_Wrapped_Input(double input, double minimumInput, double maximumInput) {
+    double modulus = maximumInput - minimumInput;
+
+    // Wrap input if it's above the maximum input
+    int numMax = (int) ((input - minimumInput) / modulus);
+    input -= numMax * modulus;
+
+    // Wrap input if it's below the minimum input
+    int numMin = (int) ((input - maximumInput) / modulus);
+    input -= numMin * modulus;
+
+    return input;
+}

@@ -139,7 +139,7 @@ void Set_Desired_States(Module_State_Array_t Desired_States) {
 void drive(Swerve_t *Swerve, float x, float y, float omega) {
     x *= SWERVE_MAX_SPEED; //convert to m/s
     y *= SWERVE_MAX_SPEED;
-    //theta *= SWERVE_MAX_ANGLUAR_SPEED; //convert to rad/s
+    omega *= SWERVE_MAX_ANGLUAR_SPEED; //convert to rad/s
 	Chassis_Speeds_t Desired_Chassis_Speeds = {.X_Speed = x, .Y_Speed = y, .Omega = omega};
 
     Set_Desired_States(Chassis_Speeds_To_Module_States(Desired_Chassis_Speeds));
