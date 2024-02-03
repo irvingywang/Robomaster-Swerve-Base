@@ -59,7 +59,7 @@ typedef struct
 	float (*Positional_PID)(PID_t *PID, float Target_Value, float Measured_Value);
 	float (*Positional_PID_Min_Error)(PID_t *PID, float Target_Value, float Measured_Value, float Min_Error);
 	float (*Incremental_PID)(PID_t *PID, float Target_Value, float Measured_Value);
-  float (*Circular_PID)(PID_t *PID, float Target_Value, float Measured_Value);
+	float (*Circular_PID)(PID_t *PID, float Target_Value, float Measured_Value);
 	void (*Clear_PID_Data)(PID_t *PID);
 }PID_Func_t;
 

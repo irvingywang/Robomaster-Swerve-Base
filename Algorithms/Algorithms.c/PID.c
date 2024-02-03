@@ -148,7 +148,7 @@ float Circular_PID(PID_t *PID, float Target_Value, float Measured_Value) {
     PID->Target_Value = Target_Value;
     PID->Measured_Value = Measured_Value;
     PID->Prev_Error = PID->Error;
-    PID->Error = Calculate_Wrapped_Input(PID->Target_Value - PID->Measured_Value, -Error_Bound, Error_Bound);
+    PID->Error = Calculate_Wrapped_Input(PID->Target_Value, PID->Measured_Value, Min_Input, Max_Input);
 
     PID->P_Out = PID->Kp * PID->Error;
     PID->I_Out = 0; //No I
