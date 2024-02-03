@@ -4,22 +4,21 @@
 /* Declare swerve struct */
 Swerve_t Swerve;
 float last_swerve_angle[4] = {.0f, .0f, .0f, .0f};
-bool Azimuth_Encoder_Reversed_Array[4] = {true, true, true, true};
-int Azimuth_CAN_ID[4] = {0x205, 0x206, 0x207, 0x208};
-uint16_t Drive_CAN_ID[4] = {0x202, 0x204, 0x203, 0x201};
-//float Azimuth_Encoder_Zero_Offset[4] = {5470.0f, 5483.0f, 6267.0f, 7444.0f}; // encoder ticks
-float Azimuth_Encoder_Zero_Offset[4] = {5470.0f, 1390.0f, 6267.0f, 3410.0f}; // encoder ticks
+bool Azimuth_Encoder_Reversed_Array[4] = {false, false, false, false}; //TODO check polarity
+int Azimuth_CAN_ID[4] = {0, 0, 0, 0};
+uint16_t Drive_CAN_ID[4] = {0, 0, 0, 0};
+float Azimuth_Encoder_Zero_Offset[4] = {0.0f, 0.0f, 0.0f, 0.0f}; // encoder ticks
 
-// Inverse kinematics matrix for a 4 module swerve
+// Inverse kinematics matrix for a 4 module swerve, modules defined counterclockwise (like quadrants)
 float Swerve_Inverse_Kinematics[8][3] = {
-        { 1, 0, -(WHEEL_BASE/2)}, //front left 0
-        {0, 1, +(-TRACK_WIDTH/2)},
-        {1, 0 ,-(WHEEL_BASE/2)}, //front right 1
+				{1, 0 ,-(WHEEL_BASE/2)}, //front right 0
         {0, 1, +(TRACK_WIDTH/2)},
-        {1, 0 ,-(-WHEEL_BASE/2)}, //back left 2
+				{ 1, 0, -(WHEEL_BASE/2)}, //front left 1
         {0, 1, +(-TRACK_WIDTH/2)},
-        {1, 0 ,-(-WHEEL_BASE/2)}, //back right 3
-        {0, 1, +(TRACK_WIDTH/2)}};
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back right 2
+        {0, 1, +(TRACK_WIDTH/2)},
+        {1, 0 ,-(-WHEEL_BASE/2)}, //back left 3
+        {0, 1, +(-TRACK_WIDTH/2)}};
 
 void Init_Modules(void);
 void Swerve_Processing(Swerve_t *Swerve);
