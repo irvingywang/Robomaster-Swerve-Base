@@ -41,17 +41,37 @@ float Calculate_Wrapped_Angle(float radians)
     return fmodf(radians, 2 * PI);
 }
 
-/* Get the difference of the current angle and the target angle in a circular system */
-float Calculate_Wrapped_Error(float Current_Radians, float Target_Radians)
+/* Get the difference of the measured_val angle and the target angle in a circular system */
+float Calculate_Wrapped_Error(float input, float measured_val, float minimumInput, float maximumInput)
 {
-    float error = Target_Radians - Current_Radians;
-    error = (fmodf(error, PI));
-    error = (error >= PI / 2) ? (error - PI) : error;
-    error = (error <= -PI / 2) ? (error + PI) : error;
+    // float error = Target_Radians - Current_Radians;
+    // error = (fmodf(error, PI));
+    // error = (error >= PI / 2) ? (error - PI) : error;
+    // error = (error <= -PI / 2) ? (error + PI) : error;
+    // return error;
+
+    float mid_point = (minimumInput + maximumInput) / 2.0;  
+    float range = maximumInput - minimumInput;
+    float curr_normalized = fmod(measured_val, range);
+    if (curr_normalized < 0)
+    {
+        curr_normalized += range;
+    }
+    float error = input - curr_normalized;
+    
+    if (error < -mid_point)
+    {
+        error = range + error;
+    }
+    else if (error > mid_point)
+    {
+        error = range - error;
+    }
+
     return error;
 }
 
-float Calculate_Wrapped_Input(double input, double current, double minimumInput, double maximumInput)
+float Calculate_Wrapped_Input(float input, float measured_val, float minimumInput, float maximumInput)
 {
     // double modulus = maximumInput - minimumInput;
     // Wrap input if it's above the maximum input
@@ -61,46 +81,46 @@ float Calculate_Wrapped_Input(double input, double current, double minimumInput,
     // int numMin = (int)((input - maximumInput) / modulus);
     // input -= numMin * modulus;
 
-    double error = 0;
-    double mid_point = (minimumInput + maximumInput) / 2.0;  
-    double range = maximumInput - minimumInput;
-    double curr_normalized = fmod(current, range);
+    float new_target = measured_val;
+    float mid_point = (minimumInput + maximumInput) / 2.0;  
+    float range = maximumInput - minimumInput;
+    float curr_normalized = fmod(measured_val, range);
     if (curr_normalized < 0)
     {
         curr_normalized += range;
     }
-    double diff = input - curr_normalized;
+    float diff = input - curr_normalized;
     
     if (diff < -mid_point)
     {
-        error += range + diff;
+        new_target += range + diff;
     }
     else if (diff > mid_point)
     {
-        error -= range + diff;
+        new_target -= range - diff;
     }
     else
     {
-        error += diff;
+        new_target += diff;
     }
 
-    return error;
+    return new_target;
 }
 
-double circulate(double target, double curr)
+float circulate(float target, float curr)
 {
-    target = fmod(target, 360.0);
+    target = fmodf(target, 360.0);
     if (target < 0)
     {
         target += 360;
     }
 
-    double curr_normalized = fmod(curr, 360.0);
-    double diff = target - curr_normalized;
+    float curr_normalized = fmodf(curr, 360.0);
+    float diff = target - curr_normalized;
 
-    if (90.0 < fabs(diff) && fabs(diff) < 270.0)
+    if (90.0 < fabsf(diff) && fabsf(diff) < 270.0)
     {
-        double beta = 180.0 - fabs(diff);
+        float beta = 180.0 - fabsf(diff);
         beta *= signum(diff);
         target = curr - beta;
     }

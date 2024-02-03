@@ -24,29 +24,7 @@ void Init_Modules(void);
 void Swerve_Processing(Swerve_t *Swerve);
 
 /* Initialize physical constants of each module */
-void Init_Modules() {
-	for (int i=0; i<NUMBER_OF_MODULES; i++) {
-		Swerve.Modules[i].Azimuth_Encoder_Reversed = Azimuth_Encoder_Reversed_Array[i];
-        Swerve.Modules[i].Azimuth_CAN_ID = Azimuth_CAN_ID[i];
-        Swerve.Modules[i].Azimuth_Encoder_Zero_Offset = Azimuth_Encoder_Zero_Offset[i];
-				Swerve.Modules[i].Azimuth_Motor.Angle_Offset = Azimuth_Encoder_Zero_Offset[i];
-				Swerve.Modules[i].Azimuth_PID.Kp = 10000.0f;
-        Swerve.Modules[i].Azimuth_PID.Ki = 0.0f;
-        Swerve.Modules[i].Azimuth_PID.Kd = 0.0f;
-        Swerve.Modules[i].Azimuth_PID.Output_Max = 18000.0f;
-				
-				Swerve.Modules[i].Drive_PID.Kp = 2000.0f;
-        Swerve.Modules[i].Drive_PID.Ki = 0.0f;
-        Swerve.Modules[i].Drive_PID.Kd = 0.0f;
-				Swerve.Modules[i].Drive_PID.I_Out_Max = 0.0f;
-        Swerve.Modules[i].Drive_PID.Output_Max = 18000.0f;
-				Swerve.Modules[i].Drive_Motor.Last_Total_Angle = 0;
-        Swerve.Modules[i].Drive_CAN_ID = Drive_CAN_ID[i];
-		PID_Func.Clear_PID_Data(&Swerve.Modules[i].Drive_PID);
-		PID_Func.Clear_PID_Data(&Swerve.Modules[i].Azimuth_PID);
-    }
-	
-}
+void Init_Modules() {}
 
 /* Scale wheel speeds to max possible speed while preserving ratio between modules.*/
 Module_State_Array_t Desaturate_Wheel_Speeds(Module_State_Array_t Module_State_Array) {

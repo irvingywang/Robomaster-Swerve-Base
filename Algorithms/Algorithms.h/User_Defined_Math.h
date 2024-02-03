@@ -25,7 +25,9 @@
 extern float VAL_LIMIT(float Value, float Upper_Limit, float Lower_Limit);
 extern float Find_Gimbal_Min_Angle(float Angle);
 extern float Calculate_Wrapped_Angle(float radians);
-extern float Calculate_Wrapped_Error(float Current_Radians, float Target_Radians);
-extern float Calculate_Wrapped_Input(double input, double minimumInput, double maximumInput);
+float Calculate_Wrapped_Error(float input, float measured_val, float minimumInput, float maximumInput);
+// extern float Calculate_Wrapped_Input(double input, double minimumInput, double maximumInput);
+float Calculate_Wrapped_Input(float input, float measured_val, float minimumInput, float maximumInput);
+float circulate(float target, float curr);
 
 #endif
