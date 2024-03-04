@@ -14,6 +14,8 @@
 Motor_Init_t M3508_Chassis[4];
 Motor_Init_t M3508_Fric_Wheel[2];
 
+void M3508_Get_Data(Motor_Init_t *motor, CAN_Export_Data_t RxMessage);
+void M3508_Send_Current_Group1(CAN_HandleTypeDef *hcanx, int16_t Motor_1_Current,int16_t Motor_2_Current,int16_t Motor_3_Current,int16_t Motor_4_Current);
 void M3508_Chassis_Get_Data(CAN_Export_Data_t RxMessage);
 void M3508_Chassis_Send_Data(int16_t Motor_1_Current,int16_t Motor_2_Current,int16_t Motor_3_Current,int16_t Motor_4_Current);
 void M3508_Fric_Wheel_Get_Data(CAN_Export_Data_t RxMessage);
@@ -24,6 +26,25 @@ void Check_M3508_Fric_Wheel(void);
 
 M3508_Func_t M3508_Func = M3508_Func_GroundInit;
 #undef M3508_Func_GroundInit
+
+//Obtain chassis data from CAN
+void M3508_Get_Data(Motor_Init_t *motor, CAN_Export_Data_t RxMessage)
+{
+
+	motor->Prev_Angle = motor->Actual_Angle;
+  motor->Actual_Angle = (int16_t)(RxMessage.CANx_Export_RxMessage[0] << 8 | RxMessage.CANx_Export_RxMessage[1]);
+  motor->Actual_Speed = (int16_t)(RxMessage.CANx_Export_RxMessage[2] << 8 | RxMessage.CANx_Export_RxMessage[3]);
+  motor->Actual_Current = (int16_t)(RxMessage.CANx_Export_RxMessage[4] << 8 | RxMessage.CANx_Export_RxMessage[5]);
+  motor->Temperature = RxMessage.CANx_Export_RxMessage[6];
+	if((motor->Actual_Angle - motor->Prev_Angle) < -6500 )
+		motor->Turn_Count++;
+	else if((motor->Actual_Angle - motor->Prev_Angle) > 6500)
+		motor->Turn_Count--;
+	motor->Total_Angle = motor->Actual_Angle + (M3508_MECH_ANGLE_MAX * motor->Turn_Count);
+	motor->Velocity_Rad = ((motor->Total_Angle - motor->Last_Total_Angle) / (M3508_MECH_ANGLE_MAX * 16.8f))*3.1415927f/0.001f;
+	motor->Last_Total_Angle = motor->Total_Angle;
+  motor->Info_Update_Frame++;
+}
 
 //Obtain chassis data from CAN
 void M3508_Chassis_Get_Data(CAN_Export_Data_t RxMessage)
@@ -42,6 +63,11 @@ void M3508_Chassis_Get_Data(CAN_Export_Data_t RxMessage)
 		M3508_Chassis[ID].Turn_Count--;
 	M3508_Chassis[ID].Total_Angle = M3508_Chassis[ID].Actual_Angle + (M3508_MECH_ANGLE_MAX * M3508_Chassis[ID].Turn_Count);
   M3508_Chassis[ID].Info_Update_Frame++;
+}
+
+void M3508_Send_Current_Group1(CAN_HandleTypeDef *hcanx, int16_t Motor_1_Current,int16_t Motor_2_Current,int16_t Motor_3_Current,int16_t Motor_4_Current)
+{
+	CAN_Func.CAN_0x200_Send_Data(hcanx,Motor_1_Current,Motor_2_Current,Motor_3_Current,Motor_4_Current);
 }
 
 //Send chassis data through specified identifier

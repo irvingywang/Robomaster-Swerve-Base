@@ -27,6 +27,8 @@
 
 #define M3508_Func_GroundInit					   \
 		{																	   \
+				&M3508_Get_Data,\
+				&M3508_Send_Current_Group1,\
 				&M3508_Chassis_Get_Data,			   \
 						&M3508_Chassis_Send_Data,		 \
 						&M3508_Fric_Wheel_Get_Data,  \
@@ -37,6 +39,8 @@
 
 typedef struct
 {
+	void (*M3508_Get_Data)(Motor_Init_t *motor, CAN_Export_Data_t RxMessage);
+	void (*M3508_Send_Current_Group1)(CAN_HandleTypeDef *hcanx, int16_t Motor_1_Current,int16_t Motor_2_Current,int16_t Motor_3_Current,int16_t Motor_4_Current);
 	void (*M3508_Chassis_Get_Data)(CAN_Export_Data_t RxMessage);
 	void (*M3508_Chassis_Send_Data)(int16_t Motor_1_Current,int16_t Motor_2_Current,int16_t Motor_3_Current,int16_t Motor_4_Current);
 	void (*M3508_Fric_Wheel_Get_Data)(CAN_Export_Data_t RxMessage);

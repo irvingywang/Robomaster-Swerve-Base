@@ -41,18 +41,18 @@
 	 DR16_Export_Data.Mouse.Left_Click = pData[12];
 	 DR16_Export_Data.Mouse.Right_Click = pData[13];
 	 DR16_Export_Data.Keyboard.Buffer = pData[14] | (pData[15] << 8);
-	 
-	 //Prevent zero deviation
-	 if(DR16_Export_Data.Remote_Control.Joystick_Left_Vx <= 20 && DR16_Export_Data.Remote_Control.Joystick_Left_Vx >= -20)
-		 DR16_Export_Data.Remote_Control.Joystick_Left_Vx = 0;
-	 if(DR16_Export_Data.Remote_Control.Joystick_Left_Vy <= 20 && DR16_Export_Data.Remote_Control.Joystick_Left_Vy >= -20)
-		 DR16_Export_Data.Remote_Control.Joystick_Left_Vy = 0;
-	 if(DR16_Export_Data.Remote_Control.Joystick_Right_Vx <= 20 && DR16_Export_Data.Remote_Control.Joystick_Right_Vx >= -20)
-		 DR16_Export_Data.Remote_Control.Joystick_Right_Vx = 0;
-	 if(DR16_Export_Data.Remote_Control.Joystick_Right_Vy <= 20 && DR16_Export_Data.Remote_Control.Joystick_Right_Vy >= -20)
-		 DR16_Export_Data.Remote_Control.Joystick_Right_Vy = 0;
-	 if(DR16_Export_Data.Remote_Control.Dial_Wheel <= 20 && DR16_Export_Data.Remote_Control.Dial_Wheel >= -20)
-		 DR16_Export_Data.Remote_Control.Dial_Wheel = 0;
+//	 
+//	 //Prevent zero deviation
+//	 if(DR16_Export_Data.Remote_Control.Joystick_Left_Vx <= 20 && DR16_Export_Data.Remote_Control.Joystick_Left_Vx >= -20)
+//		 DR16_Export_Data.Remote_Control.Joystick_Left_Vx = 0;
+//	 if(DR16_Export_Data.Remote_Control.Joystick_Left_Vy <= 20 && DR16_Export_Data.Remote_Control.Joystick_Left_Vy >= -20)
+//		 DR16_Export_Data.Remote_Control.Joystick_Left_Vy = 0;
+//	 if(DR16_Export_Data.Remote_Control.Joystick_Right_Vx <= 20 && DR16_Export_Data.Remote_Control.Joystick_Right_Vx >= -20)
+//		 DR16_Export_Data.Remote_Control.Joystick_Right_Vx = 0;
+//	 if(DR16_Export_Data.Remote_Control.Joystick_Right_Vy <= 20 && DR16_Export_Data.Remote_Control.Joystick_Right_Vy >= -20)
+//		 DR16_Export_Data.Remote_Control.Joystick_Right_Vy = 0;
+//	 if(DR16_Export_Data.Remote_Control.Dial_Wheel <= 20 && DR16_Export_Data.Remote_Control.Dial_Wheel >= -20)
+//		 DR16_Export_Data.Remote_Control.Dial_Wheel = 0;
 	 
 	 Keyboard_Data_Process();
 	 DR16_Export_Data.Info_Update_Frame++;

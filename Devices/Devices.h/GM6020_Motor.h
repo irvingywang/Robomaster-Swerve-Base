@@ -23,17 +23,21 @@
 #define GM6020_MECH_ANGLE_MAX 8192.0f //GM6020 maximum mechanical angle
 #define GM6020_ANGLE_CONVERT 0.0439453125f //(360/GM6020_MECH_ANGLE_MAX)
 
-#define GM6020_Func_GroundInit        \
-    {                                 \
-        &GM6020_Yaw_Get_Data,         \
-            &GM6020_Pitch_Get_Data,   \
-						&GM6020_Gimbal_Send_Data, \
-            &Check_GM6020_Yaw,        \
-            &Check_GM6020_Pitch,      \
-    }
+#define GM6020_Func_GroundInit       \
+  {                                  \
+    &GM6020_Get_Data,                \
+        &GM6020_Send_Current_Group1, \
+        &GM6020_Yaw_Get_Data,        \
+        &GM6020_Pitch_Get_Data,      \
+        &GM6020_Gimbal_Send_Data,    \
+        &Check_GM6020_Yaw,           \
+        &Check_GM6020_Pitch,         \
+  }
 
 typedef struct
 {
+  void (*GM6020_Get_Data)(Motor_Init_t *motor_init, CAN_Export_Data_t RxMessage);
+  void (*GM6020_Send_Current_Group1)(CAN_HandleTypeDef *hcanx, uint16_t motor_1, uint16_t motor_2, uint16_t motor_3, uint16_t motor_4);
 	void (*GM6020_Yaw_Get_Data)(CAN_Export_Data_t RxMessage);
   void (*GM6020_Pitch_Get_Data)(CAN_Export_Data_t RxMessage);
 	void (*GM6020_Gimbal_Send_Data)(int16_t Pitch_Output, int16_t Yaw_Output);

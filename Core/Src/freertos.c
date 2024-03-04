@@ -41,6 +41,7 @@
 #include "Buzzer.h"
 #include "Jetson_Tx2.h"
 #include "User_Interface.h"
+#include "Swerve.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -281,14 +282,38 @@ void CAN1_Rec(void const * argument)
   {
     xQueueReceive(CAN1_ReceiveHandle, &CAN_Export_Data, portMAX_DELAY);
 		ID = CAN_Export_Data.CAN_RxHeader.StdId;
-		if(ID == SUPERCAP_ID)
-			Super_Capacitor_Func.Super_Capacitor_Get_Data(CAN_Export_Data);
-		else if(ID >= M3508_CHASSIS_START_ID && ID <= M3508_CHASSIS_END_ID)
-			M3508_Func.M3508_Chassis_Get_Data(CAN_Export_Data);
-		else if(ID == GM6020_YAW_ID)
-			GM6020_Func.GM6020_Yaw_Get_Data(CAN_Export_Data);
-		else if(ID == GM6020_PITCH_ID)
-			GM6020_Func.GM6020_Pitch_Get_Data(CAN_Export_Data);
+      if(ID == Swerve.Modules[0].Azimuth_CAN_ID) {
+        GM6020_Func.GM6020_Get_Data(&(Swerve.Modules[0].Azimuth_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[1].Azimuth_CAN_ID) {
+        GM6020_Func.GM6020_Get_Data(&(Swerve.Modules[1].Azimuth_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[2].Azimuth_CAN_ID) {
+        GM6020_Func.GM6020_Get_Data(&(Swerve.Modules[2].Azimuth_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[3].Azimuth_CAN_ID) {
+        GM6020_Func.GM6020_Get_Data(&(Swerve.Modules[3].Azimuth_Motor), CAN_Export_Data);
+      }
+      else if(ID == Swerve.Modules[0].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[0].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[1].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[1].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[2].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[2].Drive_Motor), CAN_Export_Data);
+      }
+      else if (ID == Swerve.Modules[3].Drive_CAN_ID) {
+        M3508_Func.M3508_Get_Data(&(Swerve.Modules[3].Drive_Motor), CAN_Export_Data);
+      }
+//		if(ID == SUPERCAP_ID)
+//			Super_Capacitor_Func.Super_Capacitor_Get_Data(CAN_Export_Data);
+//		else if(ID >= M3508_CHASSIS_START_ID && ID <= M3508_CHASSIS_END_ID)
+//			M3508_Func.M3508_Chassis_Get_Data(CAN_Export_Data);
+//		else if(ID == GM6020_YAW_ID)
+//			GM6020_Func.GM6020_Yaw_Get_Data(CAN_Export_Data);
+//		else if(ID == GM6020_PITCH_ID)
+//			GM6020_Func.GM6020_Pitch_Get_Data(CAN_Export_Data);
 		Monitor_CAN1.Info_Update_Frame++;
   }
   /* USER CODE END CAN1_Rec */
